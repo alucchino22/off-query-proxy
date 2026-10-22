@@ -50,13 +50,20 @@ Include 2-4 bullets. If the question cannot be answered from the register, retur
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: REGISTER_CONTEXT,
         messages: [{ role: 'user', content: query }]
       })
     });
 
+    if (!response.ok) {
+      const errText = await response.text();
+      return new Response(JSON.stringify({ error: 'Anthropic error ' + response.status, detail: errText }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
     const data = await response.json();
     return new Response(JSON.stringify(data), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
